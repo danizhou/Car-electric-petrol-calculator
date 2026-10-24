@@ -33,17 +33,17 @@ export function ResultsSection({ result, pricePerKwh }: ResultsSectionProps) {
     );
   }
 
-  const { petrolOnly, fullBattery, savings, savingsPercent, petrolCostPer100Km, breakevenPricePerKwh } = result;
+  const { petrolOnly, withBattery, savings, savingsPercent, petrolCostPer100Km, breakevenPricePerKwh } = result;
 
-  const fullBatteryDetail =
-    fullBattery.petrolKm > 0
-      ? `${formatNumber(fullBattery.kwh)} kWh (${formatNumber(fullBattery.electricKm, 1)} km) + ` +
-        `${formatNumber(fullBattery.litres)} L (${formatNumber(fullBattery.petrolKm, 1)} km)`
-      : `${formatNumber(fullBattery.kwh)} kWh, tutto in elettrico`;
+  const withBatteryDetail =
+    withBattery.petrolKm > 0
+      ? `${formatNumber(withBattery.kwh)} kWh (${formatNumber(withBattery.electricKm, 1)} km) + ` +
+        `${formatNumber(withBattery.litres)} L (${formatNumber(withBattery.petrolKm, 1)} km)`
+      : `${formatNumber(withBattery.kwh)} kWh, tutto in elettrico`;
 
   const savingsDetail =
     savings >= 0
-      ? `${formatNumber(savingsPercent, 1)}% in meno partendo carichi`
+      ? `${formatNumber(savingsPercent, 1)}% in meno usando la batteria`
       : `${formatNumber(-savingsPercent, 1)}% in più: conviene la benzina`;
 
   return (
@@ -55,7 +55,11 @@ export function ResultsSection({ result, pricePerKwh }: ResultsSectionProps) {
           value={formatEuro(petrolOnly.cost)}
           detail={`${formatNumber(petrolOnly.litres)} L di benzina`}
         />
-        <Tile label="Scenario B · batteria carica" value={formatEuro(fullBattery.cost)} detail={fullBatteryDetail} />
+        <Tile
+          label={`Scenario B · ibrido (${formatNumber(withBattery.availableEvKm, 0)} km elettrici)`}
+          value={formatEuro(withBattery.cost)}
+          detail={withBatteryDetail}
+        />
         <Tile
           label="Risparmio netto"
           value={formatEuro(savings)}

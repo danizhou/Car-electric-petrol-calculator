@@ -14,6 +14,7 @@ const DEFAULT_TRIP: TripFields = {
   distanceKm: "85,4",
   pricePerKwh: "0,52",
   pricePerLitre: "1,99",
+  availableEvKm: "",
 };
 
 export function Calculator() {
@@ -35,7 +36,11 @@ export function Calculator() {
     const valid = Object.values(values).every((v) => Number.isFinite(v) && v >= 0);
     if (!valid || values.evConsumptionPer100Km === 0) return null;
 
-    return calculateTrip(values, values);
+    // An empty field means a full battery.
+    const availableEvKm = trip.availableEvKm.trim() === "" ? undefined : parseDecimal(trip.availableEvKm);
+    if (availableEvKm !== undefined && !(availableEvKm >= 0)) return null;
+
+    return calculateTrip({ ...values, availableEvKm }, values);
   }, [trip, car]);
 
   const toNumberOrNull = (value: string) => {
@@ -47,6 +52,7 @@ export function Calculator() {
     distanceKm: toNumberOrNull(trip.distanceKm),
     pricePerKwh: toNumberOrNull(trip.pricePerKwh),
     pricePerLitre: toNumberOrNull(trip.pricePerLitre),
+    availableEvKm: toNumberOrNull(trip.availableEvKm),
     maxEvRangeKm: toNumberOrNull(car.maxEvRangeKm),
     evConsumptionPer100Km: toNumberOrNull(car.evConsumptionPer100Km),
     iceConsumptionPer100Km: toNumberOrNull(car.iceConsumptionPer100Km),
@@ -55,7 +61,7 @@ export function Calculator() {
 
   return (
     <>
-      <TripSection values={trip} onChange={setTrip} />
+      <TripSection values={trip} onChange={setTrip} maxEvRangeKm={car.maxEvRangeKm} />
       <CarSection values={car} onChange={setCar} onCarLoaded={setCarName} />
       <ResultsSection result={result} pricePerKwh={pricePerKwh} />
       {ASSISTANT_ENABLED && <AssistantSection context={assistantContext} />}

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { BUILT_IN_CARS, loadCustomCars, saveCustomCars, type CarPreset } from "@/lib/cars";
 import { parseDecimal, toInputValue } from "@/lib/format";
+import { CarPicker } from "./CarPicker";
 import { NumberField } from "./NumberField";
 
 export interface CarFields {
@@ -30,10 +31,15 @@ interface CarSectionProps {
 export function CarSection({ values, onChange, onCarLoaded }: CarSectionProps) {
   const [customCars, setCustomCars] = useState<CarPreset[]>([]);
   const [selectedId, setSelectedId] = useState(BUILT_IN_CARS[0].id);
-  const [note, setNote] = useState(`Valori caricati: ${BUILT_IN_CARS[0].name}.`);
+  const [note, setNote] = useState("");
+  const [pickerOpen, setPickerOpen] = useState(false);
 
-  // Read saved cars after mount so server and client render the same markup.
-  useEffect(() => setCustomCars(loadCustomCars()), []);
+  // Read saved cars after mount so server and client render the same markup,
+  // then ask which car to use.
+  useEffect(() => {
+    setCustomCars(loadCustomCars());
+    setPickerOpen(true);
+  }, []);
 
   const cars = [...BUILT_IN_CARS, ...customCars];
   const selected = cars.find((c) => c.id === selectedId);
@@ -45,11 +51,20 @@ export function CarSection({ values, onChange, onCarLoaded }: CarSectionProps) {
     saveCustomCars(next);
   };
 
+  const loadCar = (car: CarPreset) => {
+    setSelectedId(car.id);
+    onChange(carToFields(car));
+    onCarLoaded(car.name);
+    setNote(`Valori caricati: ${car.name}. Puoi modificarli per testare scenari diversi.`);
+  };
+
   const handleLoad = () => {
-    if (!selected) return;
-    onChange(carToFields(selected));
-    onCarLoaded(selected.name);
-    setNote(`Valori caricati: ${selected.name}. Puoi modificarli per testare scenari diversi.`);
+    if (selected) loadCar(selected);
+  };
+
+  const handlePick = (car: CarPreset) => {
+    setPickerOpen(false);
+    loadCar(car);
   };
 
   const handleSave = () => {
@@ -86,6 +101,7 @@ export function CarSection({ values, onChange, onCarLoaded }: CarSectionProps) {
 
   return (
     <section className="card">
+      {pickerOpen && <CarPicker cars={cars} onPick={handlePick} />}
       <h2>Auto</h2>
       <div className="presets">
         <select aria-label="Auto salvate" value={selectedId} onChange={(e) => setSelectedId(e.target.value)}>

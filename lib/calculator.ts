@@ -5,6 +5,11 @@ export interface TripInput {
   pricePerKwh: number;
   /** Petrol price in €/L. */
   pricePerLitre: number;
+  /**
+   * Electric km left in the battery at departure, before the car switches to petrol.
+   * Omitted means a full battery. Capped at the car's maximum electric range.
+   */
+  availableEvKm?: number;
 }
 
 export interface CarSpec {
@@ -22,8 +27,10 @@ export interface TripResult {
     litres: number;
     cost: number;
   };
-  /** Scenario B: start with a full battery, petrol for any remaining km. */
-  fullBattery: {
+  /** Scenario B: drive on the battery charge available, petrol for any remaining km. */
+  withBattery: {
+    /** Electric km available at departure (after capping at the max range). */
+    availableEvKm: number;
     electricKm: number;
     kwh: number;
     petrolKm: number;
@@ -45,13 +52,14 @@ export function calculateTrip(trip: TripInput, car: CarSpec): TripResult {
   const petrolOnlyLitres = (distanceKm / 100) * iceConsumptionPer100Km;
   const petrolOnlyCost = petrolOnlyLitres * pricePerLitre;
 
-  const electricKm = Math.min(distanceKm, maxEvRangeKm);
-  const petrolKm = Math.max(0, distanceKm - maxEvRangeKm);
+  const availableEvKm = Math.max(0, Math.min(trip.availableEvKm ?? maxEvRangeKm, maxEvRangeKm));
+  const electricKm = Math.min(distanceKm, availableEvKm);
+  const petrolKm = distanceKm - electricKm;
   const kwh = (electricKm / 100) * evConsumptionPer100Km;
   const extraLitres = (petrolKm / 100) * iceConsumptionPer100Km;
-  const fullBatteryCost = kwh * pricePerKwh + extraLitres * pricePerLitre;
+  const withBatteryCost = kwh * pricePerKwh + extraLitres * pricePerLitre;
 
-  const savings = petrolOnlyCost - fullBatteryCost;
+  const savings = petrolOnlyCost - withBatteryCost;
   const savingsPercent = petrolOnlyCost > 0 ? (savings / petrolOnlyCost) * 100 : 0;
 
   const petrolCostPer100Km = iceConsumptionPer100Km * pricePerLitre;
@@ -60,7 +68,7 @@ export function calculateTrip(trip: TripInput, car: CarSpec): TripResult {
 
   return {
     petrolOnly: { litres: petrolOnlyLitres, cost: petrolOnlyCost },
-    fullBattery: { electricKm, kwh, petrolKm, litres: extraLitres, cost: fullBatteryCost },
+    withBattery: { availableEvKm, electricKm, kwh, petrolKm, litres: extraLitres, cost: withBatteryCost },
     savings,
     savingsPercent,
     petrolCostPer100Km,

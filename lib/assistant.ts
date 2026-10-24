@@ -22,6 +22,7 @@ export const assistantRequestSchema = z.object({
     distanceKm: z.number().nullable(),
     pricePerKwh: z.number().nullable(),
     pricePerLitre: z.number().nullable(),
+    availableEvKm: z.number().nullable(),
     maxEvRangeKm: z.number().nullable(),
     evConsumptionPer100Km: z.number().nullable(),
     iceConsumptionPer100Km: z.number().nullable(),
@@ -37,13 +38,16 @@ export const calculateTripTool = betaZodTool({
   name: "calculate_trip",
   description:
     "Calculates the cost of a plug-in hybrid trip in two scenarios: petrol only (empty battery) " +
-    "and starting with a full battery, then petrol for any distance beyond the electric range. " +
+    "and using the battery charge available at departure, then petrol for the remaining distance. " +
     "Also returns the savings and the break-even electricity price. " +
     "Use it for every number you give the user; never do the arithmetic yourself.",
   inputSchema: z.object({
     distanceKm: nonNegative.describe("Total trip distance in km"),
     pricePerKwh: nonNegative.describe("Electricity price in €/kWh"),
     pricePerLitre: nonNegative.describe("Petrol price in €/L"),
+    availableEvKm: nonNegative
+      .optional()
+      .describe("Electric km left in the battery at departure. Omit for a full battery"),
     maxEvRangeKm: nonNegative.describe("Maximum electric range in km"),
     evConsumptionPer100Km: z.number().positive().describe("Electric consumption in kWh/100 km"),
     iceConsumptionPer100Km: nonNegative.describe("Petrol consumption in L/100 km"),
@@ -58,7 +62,7 @@ Answer in Italian, briefly and concretely: a few sentences or a short list. Use 
 
 How the app calculates:
 - Scenario A, petrol only: litres = distance / 100 × petrol consumption; cost = litres × petrol price.
-- Scenario B, full battery: drive electric up to the electric range, then petrol for the remaining km.
+- Scenario B, hybrid: drive electric for the km left in the battery at departure (full battery = the car's electric range), then petrol for the remaining km.
 - Break-even electricity price = (petrol consumption × petrol price) / electric consumption. Above that price, driving on petrol is cheaper.
 
 Use the calculate_trip tool for every figure you quote, including "what if" questions with different distances, prices or consumption values. Start from the values the user currently has in the calculator (given in their message) and change only what the question asks. If a needed value is missing, ask for it.
@@ -73,6 +77,7 @@ function describeContext(context: AssistantRequest["context"]): string {
     `- Distanza: ${value(context.distanceKm, "km")}`,
     `- Elettricità: ${value(context.pricePerKwh, "€/kWh")}`,
     `- Benzina: ${value(context.pricePerLitre, "€/L")}`,
+    `- Km elettrici alla partenza: ${context.availableEvKm == null ? "batteria piena" : `${context.availableEvKm} km`}`,
     `- Autonomia EV: ${value(context.maxEvRangeKm, "km")}`,
     `- Consumo elettrico: ${value(context.evConsumptionPer100Km, "kWh/100 km")}`,
     `- Consumo benzina: ${value(context.iceConsumptionPer100Km, "L/100 km")}`,

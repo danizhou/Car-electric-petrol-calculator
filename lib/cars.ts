@@ -18,6 +18,17 @@ export const BUILT_IN_CARS: CarPreset[] = [
     batteryKwh: 18,
     builtIn: true,
   },
+  {
+    // EU spec: 57 km WLTP range, 18.4 kWh/100 km. Petrol figure is the EPA
+    // charge-sustaining rating (34 mpg); real-world use is often higher.
+    id: "kia-sorento-phev-2021",
+    name: "Kia Sorento PHEV 2021 (13,8 kWh)",
+    maxEvRangeKm: 57,
+    evConsumptionPer100Km: 18.4,
+    iceConsumptionPer100Km: 6.9,
+    batteryKwh: 13.8,
+    builtIn: true,
+  },
 ];
 
 const STORAGE_KEY = "phev-calc-cars";

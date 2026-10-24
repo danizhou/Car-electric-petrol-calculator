@@ -220,3 +220,44 @@ button:disabled {
   opacity: 0.5;
   cursor: default;
 }
+
+.field-hint {
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin: 4px 0 0;
+}
+
+.car-picker {
+  width: min(480px, calc(100vw - 32px));
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--card);
+  color: var(--text);
+}
+
+.car-picker::backdrop {
+  background: rgb(0 0 0 / 0.45);
+}
+
+.car-picker ul {
+  list-style: none;
+  margin: 16px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.car-picker li button {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  text-align: left;
+}
+
+.car-picker li button span {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
