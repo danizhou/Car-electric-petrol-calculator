@@ -24,9 +24,10 @@ export function carToFields(car: CarPreset): CarFields {
 interface CarSectionProps {
   values: CarFields;
   onChange: (values: CarFields) => void;
+  onCarLoaded: (name: string) => void;
 }
 
-export function CarSection({ values, onChange }: CarSectionProps) {
+export function CarSection({ values, onChange, onCarLoaded }: CarSectionProps) {
   const [customCars, setCustomCars] = useState<CarPreset[]>([]);
   const [selectedId, setSelectedId] = useState(BUILT_IN_CARS[0].id);
   const [note, setNote] = useState(`Valori caricati: ${BUILT_IN_CARS[0].name}.`);
@@ -47,6 +48,7 @@ export function CarSection({ values, onChange }: CarSectionProps) {
   const handleLoad = () => {
     if (!selected) return;
     onChange(carToFields(selected));
+    onCarLoaded(selected.name);
     setNote(`Valori caricati: ${selected.name}. Puoi modificarli per testare scenari diversi.`);
   };
 

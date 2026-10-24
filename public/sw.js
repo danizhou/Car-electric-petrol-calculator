@@ -1,6 +1,10 @@
 // Network-first for pages, cache-first for static assets, so the app keeps working offline.
 const CACHE = "phev-calc-v1";
-const PRECACHE = ["/", "/manifest.webmanifest", "/icon.svg", "/icon-192.png", "/icon-512.png"];
+// Paths are relative to the worker's scope, so the app works under any base path.
+const SCOPE = self.registration.scope;
+const PRECACHE = ["", "manifest.webmanifest", "icon.svg", "icon-192.png", "icon-512.png"].map(
+  (path) => new URL(path, SCOPE).href,
+);
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(PRECACHE)));
@@ -28,7 +32,7 @@ self.addEventListener("fetch", (event) => {
           caches.open(CACHE).then((cache) => cache.put(request, copy));
           return response;
         })
-        .catch(() => caches.match(request).then((cached) => cached || caches.match("/"))),
+        .catch(() => caches.match(request).then((cached) => cached || caches.match(SCOPE))),
     );
     return;
   }

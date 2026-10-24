@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { ServiceWorkerRegistration } from "@/components/ServiceWorkerRegistration";
+import { withBasePath } from "@/lib/paths";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -7,8 +8,8 @@ export const metadata: Metadata = {
   description: "Confronto dei costi di viaggio di un'ibrida plug-in: batteria carica contro batteria scarica.",
   applicationName: "Costi PHEV",
   icons: {
-    icon: "/icon.svg",
-    apple: "/apple-icon.png",
+    icon: withBasePath("/icon.svg"),
+    apple: withBasePath("/apple-icon.png"),
   },
   appleWebApp: {
     capable: true,
