@@ -261,3 +261,10 @@ button:disabled {
   font-size: 0.8rem;
   color: var(--muted);
 }
+
+.version {
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-top: 24px;
+}

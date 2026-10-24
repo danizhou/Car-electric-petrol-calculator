@@ -2,6 +2,8 @@
 
 Web app that compares the cost of a plug-in hybrid trip started with a full battery against the same trip on petrol only, and shows the electricity break-even price.
 
+**Live: https://danizhou.github.io/Car-electric-petrol-calculator/**
+
 Built with Next.js (App Router) and TypeScript. Installable as a PWA and usable offline.
 
 ## Getting started
@@ -17,7 +19,7 @@ The service worker is only registered in production builds (`npm run build && np
 
 ## GitHub Pages
 
-Every push to `main` builds a static export and publishes it with GitHub Actions (`.github/workflows/deploy-pages.yml`). Pages has no server, so the AI assistant route is left out of that build.
+Every push to `main` builds a static export and publishes it with GitHub Actions (`.github/workflows/deploy-pages.yml`). The footer of the live site shows the commit it was built from. Pages has no server, so the AI assistant route is left out of that build.
 
 To reproduce the Pages build locally (move `app/api` aside first):
 
